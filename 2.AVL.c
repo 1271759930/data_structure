@@ -1,7 +1,7 @@
 /*
  * @Author: LZH
  * @Date: 2022-04-14 22:56:00
- * @LastEditTime: 2022-04-14 23:52:05
+ * @LastEditTime: 2022-04-15 09:56:43
  * @Description: 
  * @FilePath: /MyFiles/6_高级数据结构/data_structure/2.AVL.c
  */
@@ -31,6 +31,7 @@ Node* getNode(int key) {
     temp->rchild = NIL;
 }
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
 void update_height(Node *root) {
     root->h = max(root->lchild->h, root->rchild->h) + 1;
 }
@@ -100,12 +101,46 @@ Node *erase(Node *root,  int key) {
             root->rchild = erase(root->rchild, temp->key);
         }
     }
+    update_height(root);
     root = maintain(root);
     return root;
 }
 
 
+void print_node(Node *root) {
+    printf("( %d [%d] | %d , %d )\n", 
+        root->key, root->h,
+        root->lchild->key,
+        root->rchild->key
+    );
+}
+
+void out_put(Node *root) {
+    if (root == NIL) return;
+    print_node(root);
+    out_put(root->lchild);
+    out_put(root->rchild);
+    return;
+}
+
 int main(int argc, char const *argv[]) {
-    
+    Node *root = NIL;
+    // test insert
+    int temp;
+    while (~scanf("%d", &temp)) {
+        if (temp == -1) break;
+        printf("Insert %d to root.\n", temp);
+        root = insert(root, temp);
+        out_put(root);
+    }
+
+    // test erase
+    while (~scanf("%d", &temp)) {
+        printf("erase %d from root.\n", temp);
+        root = erase(root, temp);
+        out_put(root);
+    }
+
+
     return 0;
 }
