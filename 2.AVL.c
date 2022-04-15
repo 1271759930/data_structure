@@ -1,7 +1,7 @@
 /*
  * @Author: LZH
  * @Date: 2022-04-14 22:56:00
- * @LastEditTime: 2022-04-15 09:56:43
+ * @LastEditTime: 2022-04-15 10:20:06
  * @Description: 
  * @FilePath: /MyFiles/6_高级数据结构/data_structure/2.AVL.c
  */
@@ -55,22 +55,32 @@ Node* right_rotate(Node *root) {
 }
 
 
+// debug  arrary
+char type_of_rotate[4][3] = {"LL", "LR", "RR", "RL"};
 Node *maintain(Node * root) {
-    if (root == NIL) return root;
-    // R
-    if (root->lchild->h == root->rchild->h + 2) {
-        if (root->lchild->lchild->h == root->lchild->rchild->h + 1) {
-            //RL
+    if (abs(root->lchild->h - root->rchild->h) < 2) return root;
+    int type = -1;
+    if (root->lchild->h > root->rchild->h) {
+        if (root->lchild->lchild->h < root->lchild->rchild->h) {
+            //LR
             root->lchild = left_rotate(root->lchild);
+            type++;
         }
+        // LL
         root = right_rotate(root);
-    //  L
-    } else if (root->lchild->h + 2 == root->rchild->h) {
-        if (root->rchild->lchild->h == root->rchild->rchild->h + 1) {
+        type++;
+    } else if (root->lchild->h < root->rchild->h) {
+        if (root->rchild->lchild->h > root->rchild->rchild->h ) {
+            // RL
             root->rchild = right_rotate(root->rchild);
+            type++;
         }
+        // RR
         root = left_rotate(root);
+        type++;
     }
+    if (type != -1)
+        printf("Unbalanced Type :[ %s ]\n", type_of_rotate[type]);
     return root;
 }
 
@@ -108,7 +118,7 @@ Node *erase(Node *root,  int key) {
 
 
 void print_node(Node *root) {
-    printf("( %d [%d] | %d , %d )\n", 
+    printf("( %4d [%4d] | %4d , %4d )\n", 
         root->key, root->h,
         root->lchild->key,
         root->rchild->key
@@ -129,14 +139,14 @@ int main(int argc, char const *argv[]) {
     int temp;
     while (~scanf("%d", &temp)) {
         if (temp == -1) break;
-        printf("Insert %d to root.\n", temp);
+        printf("\nInsert %d to root.\n", temp);
         root = insert(root, temp);
         out_put(root);
     }
 
     // test erase
     while (~scanf("%d", &temp)) {
-        printf("erase %d from root.\n", temp);
+        printf("\nerase %d from root.\n", temp);
         root = erase(root, temp);
         out_put(root);
     }
