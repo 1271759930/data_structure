@@ -1,7 +1,7 @@
 /*
  * @Author: LZH
  * @Date: 2022-04-26 15:58:05
- * @LastEditTime: 2022-04-28 11:09:27
+ * @LastEditTime: 2022-04-28 15:41:32
  * @Description: 
  * @FilePath: /MyFiles/6_高级数据结构/data_structure/5_string_match.c
  */
@@ -10,19 +10,19 @@
 #include <string.h>
 
 #define MAX_N 1000
-#define DEFAULT_LEN 100
+#define DEFAULT_LEN 30
 
 char s[MAX_N + 5], t[MAX_N + 5];
 
 #define TSET_FUN(func) {\
     char temp[MAX_N + 5];\
-    snprintf(temp, strlen(temp), "%s(\"%s\", \"%s\") = %3d.\n", #func, s, t, func(s, t));\
+    sprintf(temp, "%s match index :%3d.", #func, func(s, t));\
     int n = DEFAULT_LEN - strlen(temp);\
-    while (n-- >= 1) printf(" ");\
+    while (n >= 0) n -= printf(" ");\
     printf("%s\n", temp);\
 }
 
-int brute_once(const char *s, const char *t) {
+int brute_one_match(const char *s, const char *t) {
     int flag = 1;
     printf("call brute once.\n");
     for (int j = 0; t[j] && s[j]; j++) {
@@ -37,7 +37,7 @@ int brute_once(const char *s, const char *t) {
 int brute_force(const char *s, const char *t) {
     int ind = 0;
     for (int i = 0; s[i]; i++) {
-        if (brute_once(s + i, t)) return i;
+        if (brute_one_match(s + i, t)) return i;
     }
     return -1;
 }
@@ -53,15 +53,15 @@ int quick_mod(int a, int b, int c) {
 }
 
 int hash_match(const char *s, const char *t) {
-    int len = strlen(t), base = 31, P = 2, nbase = quick_mod(base, len, P);
+    int len = strlen(t), base = 31, P = 9973, nbase = quick_mod(base, len, P);
     int h = 0, th = 0;
     for (int i = 0; t[i]; i++) th = (t[i] + th * base) % P;
     for (int i = 0; s[i]; i++) {
         h = (s[i] + h * base) % P;
         if (i >= len)  h = (h - (nbase * s[i - len] % P) + P) % P;
-        if (i <  len) continue;
+        if (i + 1 <  len) continue;
         if (h != th) continue;
-        if (brute_once(s + i - len + 1, t)) return i - len + 1;
+        if (brute_one_match(s + i - len + 1, t)) return i - len + 1;
     }
     return -1;
 }
@@ -135,24 +135,37 @@ int kmp_opt(const char *s, const char *t) {
     return -1;
 }
 
-int kmp(const char *s, const char *t) {
-    int len;
-    int *next = getNext(t, &len);
-    for (int i = 0, j = -1; s[i]; i++) {
-        while (j != -1 && t[j + 1] != s[i]) j = next[j];
-        if (t[j + 1] == s[i]) j += 1;
-        if (t[j + 1] == '\0') return i - len + 1;
+int sunday(const char *s, const char *t) {
+    int tlen = strlen(t), slen = strlen(s);
+    int jump[128] = {0};
+    for (int i = 0; i < 128; i++) jump[i] = tlen + 1;
+    for (int i = 0; t[i]; i++) jump[t[i]] = tlen - i;
+    for (int i = 0; i + tlen <= slen;) {
+        if (brute_one_match(s + i, t)) return i;
+        i += jump[s[i + tlen]];
     }
-    free(next);
     return -1;
 }
 
+int shift_and(const char *s, const char *t) {
+    int code[128] = {0}, n = 0;
+    for (; t[n]; n++) code[t[n]] |= (1 << n);
+    int p = 0;
+    for (int i = 0; s[i]; i++) {
+        p = (p << 1 | 1) & code[s[i]];
+        if (p & (1 << (n - 1))) return i - n + 1;
+    }
+    return -1;
+}
 
 int main(int argc, char const *argv[]) {
     scanf("%s %s", s, t);
     TSET_FUN(brute_force);
     TSET_FUN(hash_match);
     TSET_FUN(kmp);
+    TSET_FUN(kmp_opt);
+    TSET_FUN(sunday);
+    TSET_FUN(shift_and);
     return 0;
 }
 
