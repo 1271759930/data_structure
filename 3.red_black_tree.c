@@ -1,7 +1,7 @@
 /*
  * @Author: LZH
  * @Date: 2022-04-19 20:44:32
- * @LastEditTime: 2022-04-21 22:02:03
+ * @LastEditTime: 2022-04-26 15:20:18
  * @Description: 
  * @FilePath: /MyFiles/6_高级数据结构/data_structure/3.red_black_tree.c
  */
@@ -123,12 +123,14 @@ Node *erase_maintain(Node *root) {
         root = right_rotate(root);
         root->color = 1;
         root->rchild = erase_maintain(root->rchild);
+    printf("brother is %s\n", erase_maintain_type_str[0]);
         return root;
     } else if (root->rchild->color == 0) {
         root->color = 0;
         root = left_rotate(root);
         root->color = 1;
         root->lchild = erase_maintain(root->lchild);
+    printf("brother is %s\n", erase_maintain_type_str[1]);
         return root;
     }
     // 兄弟黑，兄弟孩子黑
@@ -146,20 +148,20 @@ Node *erase_maintain(Node *root) {
     if (root->lchild->color == 1) {
         if (root->lchild->lchild->color != 0) {
             type += 1;
-            root->lchild->color = 0;
-            root->lchild->rchild->color = 1;
+            // root->lchild->color = 0;
+            // root->lchild->rchild->color = 1;
             root->lchild = left_rotate(root->lchild);
         }
         type += 1;
         root->rchild->color = 1;
         root->lchild->color = root->color;
-        root->lchild->color = root->rchild->color = 1;
+        root = right_rotate(root);
     } else {
-        type = 3;
+        type = 4;
         if (root->rchild->rchild->color != 0) {
             type += 1;
-            root->rchild->color = 0;
-            root->rchild->lchild->color = 1;
+            // root->rchild->color = 0;
+            // root->rchild->lchild->color = 1;
             root->rchild = right_rotate(root->rchild);
         }
         type += 1;
